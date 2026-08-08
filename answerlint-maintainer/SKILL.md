@@ -55,7 +55,7 @@ Make repository changes from shipped behavior outward. Keep the core determinist
 3. Render the same signal consistently across every supported output.
 4. Keep JSON machine-readable and exhaustive; keep SARIF limited to non-passing findings with stable rule IDs.
 5. Add contract-level tests and an end-to-end CLI write/read test.
-6. Treat report JSON consumed by `action.yml` and `scripts/action-*.mjs` as a compatibility boundary.
+6. Treat report JSON consumed by `action.yml` and its helper modules under the target repository's `scripts/` directory as a compatibility boundary.
 
 ### Change llms.txt or TUI behavior
 

@@ -38,7 +38,7 @@ The diff command starts from two existing JSON reports rather than crawling cont
 | Output serialization | `src/reporters/`, `templates/report.hbs` |
 | llms.txt feature | `src/llms/`, `src/cli/commands/llms.ts` |
 | Local watch UI | `src/tui/`, `src/cli/commands/tui.ts` |
-| Composite action contract | `action.yml`, `scripts/action-*.mjs` |
+| Composite action contract | `action.yml`, helper modules under the target repository's `scripts/` directory |
 | Tests and fixtures | `tests/`, `examples/`, `tests/helpers.ts` |
 | Build/package | `tsup.config.ts`, `package.json` |
 

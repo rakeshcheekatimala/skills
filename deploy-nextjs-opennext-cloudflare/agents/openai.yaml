@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deploy Next.js with OpenNext"
+  short_description: "Deploy Next.js safely to Cloudflare Workers"
+  default_prompt: "Use $deploy-nextjs-opennext-cloudflare to configure and verify this Next.js app for a Cloudflare Workers deployment."

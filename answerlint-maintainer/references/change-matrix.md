@@ -15,7 +15,7 @@ Use the relevant row as a minimum impact check, then inspect imports and consume
 | llms.txt generation | discover/extract/render/types/command | Local and web discovery; stable ordering; budgets; escaping | Deterministic/no-key claim and command reference |
 | llms.txt lint | lint/types/command | Error vs warning; strict/CI; redirect/link timeout/concurrency | Exit behavior and network-check controls |
 | TUI/watch | `src/tui`, TUI command, shared score pipeline | Initial render, debounce, refresh, invalid/empty file, debug privacy | Zero-token/read-only/editor boundary |
-| Composite action | `action.yml`, `scripts/action-*.mjs`, package files | Valid/invalid reports; comment marker/update; floor/drop failure | Action inputs, pinned version, permissions |
+| Composite action | `action.yml`, its helper modules under the target repository's `scripts/` directory, package files | Valid/invalid reports; comment marker/update; floor/drop failure | Action inputs, pinned version, permissions |
 | Dependency | package manifests, security config/workflow | Build/test/coverage/package; OSV/GuardDog/signatures | Trust model and any narrow exception |
 | Release/build | package metadata, tsup, semantic-release, workflow | Node matrix, bundle start, pack contents | Versioning/release notes and published files |
 | Product docs/visual | README, capability map, relevant command output/assets | Verify every command and count against code/tests | Separate shipped, stubbed, planned, unsupported |

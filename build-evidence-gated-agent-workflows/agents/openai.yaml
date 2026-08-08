@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Evidence-Gated Agent Workflows"
+  short_description: "Build agents with evidence and safety gates"
+  default_prompt: "Use $build-evidence-gated-agent-workflows to design this agent flow with typed evidence, deterministic checks, and human approval."

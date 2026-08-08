@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Agent Skill Packages"
+  short_description: "Audit skills before agents trust them"
+  default_prompt: "Use $audit-agent-skill-packages to review this skill package for specification, security, privacy, and behavioral risks."
