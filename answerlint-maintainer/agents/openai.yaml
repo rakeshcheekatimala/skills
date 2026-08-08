@@ -1,0 +1,4 @@
+interface:
+  display_name: "AnswerLint Maintainer"
+  short_description: "Extend AnswerLint without breaking its contracts"
+  default_prompt: "Use $answerlint-maintainer to implement and verify an AnswerLint change."
