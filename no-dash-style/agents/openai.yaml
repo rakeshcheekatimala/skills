@@ -1,0 +1,4 @@
+interface:
+  display_name: "No Dash Style"
+  short_description: "Write clear prose without unnecessary dashes"
+  default_prompt: "Use $no-dash-style for the prose in this task while preserving technical syntax."
