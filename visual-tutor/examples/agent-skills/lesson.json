@@ -1,0 +1,2356 @@
+{
+  "version": 1,
+  "title": "Agent skills, from the inside out",
+  "subtitle": "Build one useful skill. Follow every part of it. Then change it without losing what matters.",
+  "outcome": "Create and read a skill, trace its resources, verify its helper, diagnose a failure, and explain how installation, tools, plugins, and hooks fit around it.",
+  "research_date": "2026-10-23",
+  "scope": {
+    "prerequisites": [
+      "Comfort reading a short text file; programming expertise is not assumed.",
+      "Python 3 is needed only to run the sample checker.",
+      "The examples use Codex for installation; the core file format is portable."
+    ],
+    "includes": [
+      "One evolving note-brief example across 15 concepts.",
+      "Foundations → composition → testing, distribution, and boundaries.",
+      "A real helper, observed outputs, an adaptation, and diagnostic cases."
+    ],
+    "boundaries": [
+      "Building and authenticating a production MCP server.",
+      "Full hook configuration and public plugin submission.",
+      "Automated host-routing or model-quality evaluation; those tests are explained, not claimed as run."
+    ]
+  },
+  "sources": [
+    {
+      "id": "spec",
+      "title": "Agent Skills: portable format specification",
+      "url": "https://agentskills.io/specification"
+    },
+    {
+      "id": "concept",
+      "title": "OpenAI: what a skill provides",
+      "url": "https://developers.openai.com/plugins/concepts/skills"
+    },
+    {
+      "id": "build",
+      "title": "OpenAI: build skills for plugins",
+      "url": "https://developers.openai.com/plugins/build/skills"
+    },
+    {
+      "id": "codex",
+      "title": "Codex: discovery, installation, and use",
+      "url": "https://learn.chatgpt.com/docs/build-skills"
+    },
+    {
+      "id": "eval",
+      "title": "OpenAI: testing skills with evaluations",
+      "url": "https://developers.openai.com/blog/eval-skills"
+    },
+    {
+      "id": "architecture",
+      "title": "OpenAI: plugin architecture",
+      "url": "https://developers.openai.com/plugins/concepts/plugins"
+    },
+    {
+      "id": "mcp",
+      "title": "OpenAI: MCP servers and tools",
+      "url": "https://developers.openai.com/plugins/concepts/mcp-server"
+    },
+    {
+      "id": "package",
+      "title": "OpenAI: package a plugin",
+      "url": "https://developers.openai.com/plugins/build/plugins"
+    },
+    {
+      "id": "hooks",
+      "title": "Codex: lifecycle hooks",
+      "url": "https://learn.chatgpt.com/docs/hooks"
+    },
+    {
+      "id": "publish",
+      "title": "OpenAI: upload and submit a plugin",
+      "url": "https://developers.openai.com/plugins/deploy/submission"
+    },
+    {
+      "id": "reference",
+      "title": "Philip Roberts: event-loop talk transcript",
+      "url": "https://2014.jsconf.eu/speakers/philip-roberts-what-the-heck-is-the-event-loop-anyway.html"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "why-skills",
+      "level": "Foundations",
+      "title": "Start with a recurring problem",
+      "why": "You want the same careful method available whenever you turn notes into a brief.",
+      "explanation": [
+        "A request names a goal. A method explains how to reach it. If you repeatedly retype that method, you have a useful candidate for a skill: a small package of instructions and any resources the method needs.",
+        "Our example is note-brief. It turns supplied study notes into a concise brief while preserving unanswered questions. The useful behavior is the method, not the folder itself. A stored instruction only helps when an agent finds it, reads it, and follows it."
+      ],
+      "example": {
+        "label": "A goal and the method behind it",
+        "language": "text",
+        "code": "Goal: make these notes useful to a busy reader.\nMethod: identify the main idea and key points.\nConstraint: keep unknowns visibly unanswered.\nResult: a concise, grounded study brief.",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        }
+      },
+      "diagram": {
+        "label": "A reusable method connects the goal to the result",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "goal",
+            "label": "Goal",
+            "detail": "Useful notes",
+            "x": 20,
+            "y": 22
+          },
+          {
+            "id": "method",
+            "label": "Method",
+            "detail": "Reusable guidance",
+            "x": 80,
+            "y": 22
+          },
+          {
+            "id": "agent",
+            "label": "Agent",
+            "detail": "Applies the method",
+            "x": 50,
+            "y": 52
+          },
+          {
+            "id": "brief",
+            "label": "Brief",
+            "detail": "Grounded output",
+            "x": 50,
+            "y": 82
+          }
+        ],
+        "edges": [
+          {
+            "id": "g",
+            "from": "goal",
+            "to": "agent"
+          },
+          {
+            "id": "m",
+            "from": "method",
+            "to": "agent"
+          },
+          {
+            "id": "b",
+            "from": "agent",
+            "to": "brief"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Name the job",
+          "text": "The learner wants a useful brief, not merely a shorter file. Start with that observable outcome.",
+          "active": [
+            "goal"
+          ],
+          "edges": [],
+          "lines": [
+            1
+          ]
+        },
+        {
+          "title": "Make the method explicit",
+          "text": "Instructions state what to preserve and how to handle gaps. They guide the agent toward the desired output.",
+          "active": [
+            "method",
+            "agent"
+          ],
+          "edges": [
+            "m"
+          ],
+          "lines": [
+            2,
+            3
+          ]
+        },
+        {
+          "title": "Inspect the result",
+          "text": "The brief should preserve the notes’ meaning and uncertainty. Judge that result rather than the presence of a skill folder.",
+          "active": [
+            "brief"
+          ],
+          "edges": [
+            "b"
+          ],
+          "lines": [
+            4
+          ]
+        }
+      ],
+      "sources": [
+        "concept"
+      ],
+      "exercise": {
+        "prompt": "Would “make this better” be enough to create a reliable note-brief skill?",
+        "hint": "What would count as better, and what must remain unchanged?",
+        "solution": "Specify the useful output and constraints: a main idea, important points, and explicit unknowns. Then test examples where those requirements matter."
+      },
+      "deep_dive": [
+        {
+          "title": "Where a skill helps most",
+          "text": "Use a skill when the method recurs. A one-time question may only need a clear request. This is a design choice about reuse, not a requirement to package every prompt."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "discovery",
+      "level": "Foundations",
+      "title": "Finding a skill is different from reading it",
+      "why": "An agent may have many skills. It needs a cheap way to find the relevant one.",
+      "explanation": [
+        "Codex initially sees a skill’s name, description, and path. When it selects the skill, it loads the instructions. Supporting files can be read later, when the task needs them. This staged loading is called progressive disclosure.",
+        "For note-brief, the description must make the matching job clear: summarize supplied notes. A vague description such as “helps with writing” leaves selection ambiguous. Improving the procedure cannot fully repair a description that hides the intended task."
+      ],
+      "example": {
+        "label": "The selection signal",
+        "language": "markdown",
+        "code": "---\nname: note-brief\ndescription: Turn supplied study notes into a concise brief and unanswered questions. Use when the user asks to summarize their notes; do not use for independent topic research.\n---\n\nRead the supplied notes. Ask for them if missing.\nReturn a main idea, key points, and unanswered questions.\nPreserve uncertainty. Do not invent missing facts.",
+        "evidence": {
+          "kind": "sourced",
+          "note": "Format and discovery behavior are documented. This activation sequence is illustrative."
+        }
+      },
+      "diagram": {
+        "label": "Load detail when it becomes relevant",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "request",
+            "label": "Request",
+            "detail": "Summarize my notes",
+            "x": 20,
+            "y": 20
+          },
+          {
+            "id": "metadata",
+            "label": "Metadata",
+            "detail": "Name + description",
+            "x": 80,
+            "y": 20
+          },
+          {
+            "id": "body",
+            "label": "Instructions",
+            "detail": "SKILL.md body",
+            "x": 80,
+            "y": 52
+          },
+          {
+            "id": "files",
+            "label": "Resources",
+            "detail": "Only as needed",
+            "x": 80,
+            "y": 83
+          },
+          {
+            "id": "work",
+            "label": "Work",
+            "detail": "Current task",
+            "x": 20,
+            "y": 83
+          }
+        ],
+        "edges": [
+          {
+            "id": "match",
+            "from": "request",
+            "to": "metadata"
+          },
+          {
+            "id": "load",
+            "from": "metadata",
+            "to": "body"
+          },
+          {
+            "id": "read",
+            "from": "body",
+            "to": "files"
+          },
+          {
+            "id": "apply",
+            "from": "body",
+            "to": "work"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Match the task",
+          "text": "The description tells the agent what job the skill supports. The full instructions are not the initial discovery signal.",
+          "active": [
+            "request",
+            "metadata"
+          ],
+          "edges": [
+            "match"
+          ],
+          "lines": [
+            2,
+            3
+          ]
+        },
+        {
+          "title": "Load the procedure",
+          "text": "Selection makes the body relevant. The agent can now read the method and its constraints.",
+          "active": [
+            "body"
+          ],
+          "edges": [
+            "load"
+          ],
+          "lines": [
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "title": "Read only useful detail",
+          "text": "If a supporting resource is needed, the body should point to it. The agent need not load every file for every request.",
+          "active": [
+            "files",
+            "work"
+          ],
+          "edges": [
+            "read",
+            "apply"
+          ],
+          "lines": []
+        }
+      ],
+      "sources": [
+        "codex"
+      ],
+      "exercise": {
+        "prompt": "Should note-brief activate for “Research the history of note-taking”?",
+        "hint": "Does the request supply notes to summarize?",
+        "solution": "No. That is independent research. The description excludes it; include an adjacent request like this when testing selection."
+      },
+      "deep_dive": [
+        {
+          "title": "Explicit and implicit use",
+          "text": "Explicitly naming a skill gives a strong selection signal. Ordinary requests can also match its description. Treat routing as behavior to evaluate, not a guarantee inferred from one successful run."
+        }
+      ],
+      "variants": [
+        {
+          "name": "A vague description",
+          "steps": [
+            {
+              "title": "Lose the boundary",
+              "text": "“Helps with writing” does not distinguish summarizing supplied notes from writing new material.",
+              "active": [
+                "metadata"
+              ],
+              "edges": [],
+              "lines": [
+                3
+              ],
+              "values": {
+                "metadata": "Helps with writing"
+              }
+            },
+            {
+              "title": "Selection becomes ambiguous",
+              "text": "The procedure may be excellent, but it is harder to select appropriately. Rewrite the trigger before adding more procedural detail.",
+              "active": [
+                "request",
+                "metadata"
+              ],
+              "edges": [
+                "match"
+              ],
+              "lines": [
+                3
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-a-skill",
+      "level": "Foundations",
+      "title": "Read the package as a set of responsibilities",
+      "why": "A directory full of files is easier to understand when each file has a clear job.",
+      "explanation": [
+        "Start with the frontmatter: what task is this package for? Then read the procedure: what does it consume, produce, and assume? Finally follow the links needed to understand its supporting resources.",
+        "The portable core is SKILL.md. The optional directories have different responsibilities: scripts perform repeatable computation, references supply information, and assets supply material used in the output. A skill can be useful with none of those optional directories."
+      ],
+      "example": {
+        "label": "The complete sample package",
+        "language": "text",
+        "code": "note-brief/\n  SKILL.md\n  scripts/check_brief.py\n  references/brief-rules.md\n  assets/brief-template.md",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        },
+        "file": "note-brief/SKILL.md"
+      },
+      "diagram": {
+        "label": "One entry point, three different supporting jobs",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "skill",
+            "label": "SKILL.md",
+            "detail": "Purpose + procedure",
+            "x": 50,
+            "y": 18
+          },
+          {
+            "id": "script",
+            "label": "Script",
+            "detail": "Compute a count",
+            "x": 18,
+            "y": 62
+          },
+          {
+            "id": "reference",
+            "label": "Reference",
+            "detail": "Preserve uncertainty",
+            "x": 50,
+            "y": 62
+          },
+          {
+            "id": "asset",
+            "label": "Asset",
+            "detail": "Shape the brief",
+            "x": 82,
+            "y": 62
+          }
+        ],
+        "edges": [
+          {
+            "id": "s",
+            "from": "skill",
+            "to": "script"
+          },
+          {
+            "id": "r",
+            "from": "skill",
+            "to": "reference"
+          },
+          {
+            "id": "a",
+            "from": "skill",
+            "to": "asset"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Read the entry point",
+          "text": "The frontmatter and body explain when to use the skill and how the work should proceed.",
+          "active": [
+            "skill"
+          ],
+          "edges": [],
+          "lines": [
+            2
+          ]
+        },
+        {
+          "title": "Separate computation from knowledge",
+          "text": "The checker computes a token count. The rules explain how to preserve meaning and unknowns. Those are different responsibilities.",
+          "active": [
+            "script",
+            "reference"
+          ],
+          "edges": [
+            "s",
+            "r"
+          ],
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "title": "Find the output material",
+          "text": "The template is a starting shape for the brief. It is something the workflow fills, not another universal instruction manual.",
+          "active": [
+            "asset"
+          ],
+          "edges": [
+            "a"
+          ],
+          "lines": [
+            5
+          ]
+        }
+      ],
+      "sources": [
+        "spec",
+        "build"
+      ],
+      "exercise": {
+        "prompt": "Where would a company’s definition of a “decision” belong?",
+        "hint": "Is it an operation, information to consult, or output material?",
+        "solution": "Usually a reference. A program that extracts decisions is a script; a report containing the decision section is an asset. Choose by the resource’s role."
+      },
+      "deep_dive": [
+        {
+          "title": "A file name does not grant a capability",
+          "text": "A script still needs an execution tool and compatible runtime. A reference still needs to be consulted. The folder structure expresses intent; it does not make behavior happen automatically."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "create-minimal",
+      "level": "Foundations",
+      "title": "Build the smallest useful skill",
+      "why": "Before adding code, make the method precise enough to use and evaluate.",
+      "explanation": [
+        "Create a folder whose name matches the skill name, then write SKILL.md with YAML frontmatter and a Markdown procedure. Use a concise description of the matching task. The body should establish inputs, outputs, and the choices that matter.",
+        "The first version of note-brief can simply read notes, preserve uncertainty, and return a useful brief. Add files only when they improve that workflow. “Always create scripts, references, and assets” would add structure without establishing a need."
+      ],
+      "example": {
+        "label": "An instruction-only first version",
+        "language": "markdown",
+        "code": "---\nname: note-brief\ndescription: Turn supplied study notes into a concise brief and unanswered questions. Use when the user asks to summarize their notes; do not use for independent topic research.\n---\n\nRead the supplied notes. Ask for them if missing.\nReturn a main idea, key points, and unanswered questions.\nPreserve uncertainty. Do not invent missing facts.",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        }
+      },
+      "diagram": {
+        "label": "A minimal package can already teach a repeatable method",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "folder",
+            "label": "Folder",
+            "detail": "note-brief/",
+            "x": 20,
+            "y": 25
+          },
+          {
+            "id": "meta",
+            "label": "Frontmatter",
+            "detail": "Identity + trigger",
+            "x": 80,
+            "y": 25
+          },
+          {
+            "id": "body",
+            "label": "Procedure",
+            "detail": "Input → decisions",
+            "x": 80,
+            "y": 75
+          },
+          {
+            "id": "result",
+            "label": "Output",
+            "detail": "Useful brief",
+            "x": 20,
+            "y": 75
+          }
+        ],
+        "edges": [
+          {
+            "id": "file",
+            "from": "folder",
+            "to": "meta"
+          },
+          {
+            "id": "procedure",
+            "from": "meta",
+            "to": "body"
+          },
+          {
+            "id": "result",
+            "from": "body",
+            "to": "result"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Choose a specific identity",
+          "text": "The folder and metadata agree on note-brief. Specific naming and description make the purpose easier to recognize.",
+          "active": [
+            "folder",
+            "meta"
+          ],
+          "edges": [
+            "file"
+          ],
+          "lines": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "title": "Define missing-input behavior",
+          "text": "If there are no supplied notes, ask for them. Inventing notes would violate the job before summarization even starts.",
+          "active": [
+            "body"
+          ],
+          "edges": [
+            "procedure"
+          ],
+          "lines": [
+            6
+          ]
+        },
+        {
+          "title": "Specify observable output",
+          "text": "The learner can inspect whether the result includes a main idea, key points, and unanswered questions. This creates a basis for evaluation.",
+          "active": [
+            "result"
+          ],
+          "edges": [
+            "result"
+          ],
+          "lines": [
+            7,
+            8
+          ]
+        }
+      ],
+      "sources": [
+        "spec"
+      ],
+      "exercise": {
+        "prompt": "Adapt the skill for meeting notes. What changes before you add any tools?",
+        "hint": "Think about the output a meeting participant needs.",
+        "solution": "Change the scope and output to decisions, explicitly assigned actions, and unresolved issues. Keep absent owners or dates unknown. Test those expectations before adding automation."
+      },
+      "deep_dive": [
+        {
+          "title": "Optional host metadata",
+          "text": "Some hosts support extra presentation or invocation settings, such as agents/openai.yaml in Codex. That is a host extension, not a prerequisite for the portable minimal package."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "scripts",
+      "level": "Intermediate",
+      "title": "Use a script for a deterministic operation",
+      "why": "“Keep the brief short” is judgment. Counting its whitespace-separated tokens is computation.",
+      "explanation": [
+        "The sample adds an 80-token budget. Our helper reads the saved brief, splits on whitespace, counts the resulting tokens, and compares that count with the limit. Python performs the same operation for the same input and limit.",
+        "The supplied brief contains 43 tokens under this definition, including Markdown markers. A limit of 80 passes; a limit of 30 fails. The script’s output is useful evidence about length. It says nothing about whether the brief is truthful or useful."
+      ],
+      "example": {
+        "label": "The checker’s core (excerpt)",
+        "language": "python",
+        "code": "content = args.brief.read_text(encoding=\"utf-8\")\ncount = len(content.split())\nresult = {\n    \"words\": count,\n    \"limit\": args.max_words,\n    \"within_limit\": count <= args.max_words,\n}\nprint(json.dumps(result))\nreturn 0 if result[\"within_limit\"] else 1",
+        "evidence": {
+          "kind": "executed",
+          "note": "The supplied Python 3 helper was run on sample-brief.md. This excerpt shows its counting and decision logic.",
+          "command": "python3 note-brief/scripts/check_brief.py sample-brief.md --max-words 80",
+          "output": "{\"words\": 43, \"limit\": 80, \"within_limit\": true}"
+        },
+        "file": "note-brief/scripts/check_brief.py"
+      },
+      "diagram": {
+        "label": "Follow a real input through a simple computation",
+        "note": "Reconstructed from verified Python output. Scenario controls change the teaching model; rerun the command to execute the helper.",
+        "nodes": [
+          {
+            "id": "input",
+            "label": "Brief",
+            "detail": "Saved Markdown",
+            "x": 18,
+            "y": 20
+          },
+          {
+            "id": "read",
+            "label": "Read",
+            "detail": "Text from disk",
+            "x": 50,
+            "y": 20
+          },
+          {
+            "id": "count",
+            "label": "Count",
+            "detail": "Whitespace tokens",
+            "x": 82,
+            "y": 20
+          },
+          {
+            "id": "limit",
+            "label": "Limit",
+            "detail": "80 tokens",
+            "x": 82,
+            "y": 75
+          },
+          {
+            "id": "compare",
+            "label": "Compare",
+            "detail": "Count ≤ limit?",
+            "x": 50,
+            "y": 75
+          },
+          {
+            "id": "output",
+            "label": "Result",
+            "detail": "JSON + exit code",
+            "x": 18,
+            "y": 75
+          }
+        ],
+        "edges": [
+          {
+            "id": "r",
+            "from": "input",
+            "to": "read"
+          },
+          {
+            "id": "c",
+            "from": "read",
+            "to": "count"
+          },
+          {
+            "id": "v",
+            "from": "count",
+            "to": "compare"
+          },
+          {
+            "id": "l",
+            "from": "limit",
+            "to": "compare"
+          },
+          {
+            "id": "o",
+            "from": "compare",
+            "to": "output"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Read the saved artifact",
+          "text": "The input is the actual sample-brief.md file. The helper does not ask a model to guess the length.",
+          "active": [
+            "input",
+            "read"
+          ],
+          "edges": [
+            "r"
+          ],
+          "lines": [
+            1
+          ]
+        },
+        {
+          "title": "Count under a stated rule",
+          "text": "Splitting on whitespace produces 43 tokens. Markdown heading markers count too; the rule is explicit and reproducible.",
+          "active": [
+            "count"
+          ],
+          "edges": [
+            "c"
+          ],
+          "lines": [
+            2
+          ],
+          "values": {
+            "count": "43 tokens"
+          }
+        },
+        {
+          "title": "Apply the boundary",
+          "text": "43 is less than or equal to 80, so the budget check passes.",
+          "active": [
+            "limit",
+            "compare"
+          ],
+          "edges": [
+            "v",
+            "l"
+          ],
+          "lines": [
+            5,
+            6
+          ],
+          "values": {
+            "compare": "43 ≤ 80 → true"
+          }
+        },
+        {
+          "title": "Return a machine-readable result",
+          "text": "The real run returned within_limit=true and exit code 0. The agent can use that result when deciding whether to revise.",
+          "active": [
+            "output"
+          ],
+          "edges": [
+            "o"
+          ],
+          "lines": [
+            8,
+            9
+          ],
+          "values": {
+            "output": "Pass · exit 0"
+          }
+        }
+      ],
+      "sources": [
+        "build"
+      ],
+      "exercise": {
+        "prompt": "Change the limit to 43, then 42. What should happen?",
+        "hint": "The rule includes equality.",
+        "solution": "43 passes because 43 ≤ 43. 42 fails because 43 > 42. Run both commands and compare their exit codes. A boundary test distinguishes ≤ from <."
+      },
+      "deep_dive": [
+        {
+          "title": "Why not let the agent estimate?",
+          "text": "A model can decide which details matter, but a deterministic helper gives a reproducible budget check. Keep that helper small and give the agent a clear command and interpretation of its output."
+        },
+        {
+          "title": "The animation’s status",
+          "text": "This is a hand-authored reconstruction of the observed computation. The browser does not execute Python. The source file, command, and recorded output let you check the reconstruction."
+        }
+      ],
+      "variants": [
+        {
+          "name": "Lower the budget to 30",
+          "example": {
+            "label": "Same checker, different argument",
+            "language": "python",
+            "code": "content = args.brief.read_text(encoding=\"utf-8\")\ncount = len(content.split())\nresult = {\n    \"words\": count,\n    \"limit\": args.max_words,\n    \"within_limit\": count <= args.max_words,\n}\nprint(json.dumps(result))\nreturn 0 if result[\"within_limit\"] else 1",
+            "evidence": {
+              "kind": "executed",
+              "note": "The same file was tested with a tighter limit.",
+              "command": "python3 note-brief/scripts/check_brief.py sample-brief.md --max-words 30",
+              "output": "{\"words\": 43, \"limit\": 30, \"within_limit\": false}"
+            },
+            "file": "note-brief/scripts/check_brief.py"
+          },
+          "steps": [
+            {
+              "title": "Keep the input constant",
+              "text": "The brief has not changed. Its whitespace-token count remains 43.",
+              "active": [
+                "input",
+                "count"
+              ],
+              "edges": [
+                "r",
+                "c"
+              ],
+              "lines": [
+                1,
+                2
+              ],
+              "values": {
+                "count": "43 tokens"
+              }
+            },
+            {
+              "title": "Change one constraint",
+              "text": "Only the limit changes to 30. Now the comparison is false.",
+              "active": [
+                "limit",
+                "compare"
+              ],
+              "edges": [
+                "l",
+                "v"
+              ],
+              "lines": [
+                5,
+                6
+              ],
+              "values": {
+                "limit": "30 tokens",
+                "compare": "43 ≤ 30 → false"
+              }
+            },
+            {
+              "title": "Expose the failure",
+              "text": "The real run returned within_limit=false and exit code 1. Shorten the brief or intentionally change the budget; do not reinterpret failure as success.",
+              "active": [
+                "output"
+              ],
+              "edges": [
+                "o"
+              ],
+              "lines": [
+                8,
+                9
+              ],
+              "values": {
+                "output": "Over budget · exit 1"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "level": "Intermediate",
+      "title": "References supply the knowledge a decision needs",
+      "why": "A short brief can be confidently wrong if it fills gaps in the notes.",
+      "explanation": [
+        "Our fictional notes explicitly say that no owner or delivery date has been agreed. The reference explains how to handle that: preserve the gap as an unanswered question. It provides decision guidance, not a new fact about the project.",
+        "Keep detailed rules near the skill without forcing them into the entry point. The entry point should tell the agent when the rules matter. A reference that is never discovered cannot improve the result."
+      ],
+      "example": {
+        "label": "A rule applied to an incomplete note",
+        "language": "text",
+        "code": "Input: No owner or delivery date has been agreed.\nRule: Do not infer missing assignments.\nOutput: Who owns the pilot? What is the delivery date?",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        },
+        "file": "note-brief/references/brief-rules.md"
+      },
+      "diagram": {
+        "label": "A rule preserves uncertainty across a transformation",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "notes",
+            "label": "Notes",
+            "detail": "Owner unknown",
+            "x": 20,
+            "y": 22
+          },
+          {
+            "id": "rules",
+            "label": "Reference",
+            "detail": "Preserve gaps",
+            "x": 80,
+            "y": 22
+          },
+          {
+            "id": "decision",
+            "label": "Decision",
+            "detail": "What can we claim?",
+            "x": 50,
+            "y": 53
+          },
+          {
+            "id": "brief",
+            "label": "Brief",
+            "detail": "Question retained",
+            "x": 50,
+            "y": 82
+          }
+        ],
+        "edges": [
+          {
+            "id": "n",
+            "from": "notes",
+            "to": "decision"
+          },
+          {
+            "id": "r",
+            "from": "rules",
+            "to": "decision"
+          },
+          {
+            "id": "b",
+            "from": "decision",
+            "to": "brief"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Find the evidence boundary",
+          "text": "The notes establish that an owner has not been agreed. They do not establish who should become the owner.",
+          "active": [
+            "notes"
+          ],
+          "edges": [],
+          "lines": [
+            1
+          ]
+        },
+        {
+          "title": "Apply the relevant rule",
+          "text": "The reference prevents an unsupported assignment from appearing as a fact.",
+          "active": [
+            "rules",
+            "decision"
+          ],
+          "edges": [
+            "r",
+            "n"
+          ],
+          "lines": [
+            2
+          ]
+        },
+        {
+          "title": "Carry the gap forward",
+          "text": "The brief can be concise and still expose what the reader needs to resolve next.",
+          "active": [
+            "brief"
+          ],
+          "edges": [
+            "b"
+          ],
+          "lines": [
+            3
+          ]
+        }
+      ],
+      "sources": [
+        "build"
+      ],
+      "exercise": {
+        "prompt": "A name appears elsewhere in the notes. Can you use that person as the missing owner?",
+        "hint": "Being mentioned and being assigned responsibility are different claims.",
+        "solution": "No. Unless the notes establish ownership, retain the question. Correct-looking completion would hide uncertainty."
+      },
+      "deep_dive": [
+        {
+          "title": "What belongs in a reference?",
+          "text": "Definitions, schemas, policies, and contextual examples that influence decisions. Link the specific file when needed; a pile of unreferenced documents does not create a reliable learning or working process."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "assets",
+      "level": "Intermediate",
+      "title": "Assets become part of the output",
+      "why": "The same reasoning can be presented in a consistent, useful form.",
+      "explanation": [
+        "Our brief template defines three sections: the main idea, key points, and unanswered questions. The workflow fills that structure with information grounded in the notes. The template is reusable output material.",
+        "This makes the distinction concrete: the reference says how to handle missing information; the asset provides a place to show it. Scripts, references, and assets may work together, but each should earn its place by serving a specific need."
+      ],
+      "example": {
+        "label": "Template → filled brief",
+        "language": "markdown",
+        "code": "# Study brief\n\n## Main idea\n[One sentence grounded in the supplied notes.]\n\n## Key points\n[The most useful supporting details.]\n\n## Unanswered questions\n[Information the notes do not establish.]",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        },
+        "file": "note-brief/assets/brief-template.md"
+      },
+      "diagram": {
+        "label": "Keep the structure; replace the placeholders with grounded content",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "template",
+            "label": "Template",
+            "detail": "Three sections",
+            "x": 20,
+            "y": 20
+          },
+          {
+            "id": "notes",
+            "label": "Notes",
+            "detail": "Evidence",
+            "x": 80,
+            "y": 20
+          },
+          {
+            "id": "fill",
+            "label": "Fill",
+            "detail": "Apply the rules",
+            "x": 50,
+            "y": 52
+          },
+          {
+            "id": "brief",
+            "label": "Artifact",
+            "detail": "Readable brief",
+            "x": 50,
+            "y": 82
+          }
+        ],
+        "edges": [
+          {
+            "id": "t",
+            "from": "template",
+            "to": "fill"
+          },
+          {
+            "id": "n",
+            "from": "notes",
+            "to": "fill"
+          },
+          {
+            "id": "b",
+            "from": "fill",
+            "to": "brief"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Choose the output shape",
+          "text": "The template supplies a recognizable structure. It does not contain the answer for this set of notes.",
+          "active": [
+            "template"
+          ],
+          "edges": [],
+          "lines": [
+            1,
+            3,
+            6,
+            9
+          ]
+        },
+        {
+          "title": "Fill with supported content",
+          "text": "Use the notes and brief rules to replace each placeholder. Do not leave scaffolding text in the final artifact.",
+          "active": [
+            "notes",
+            "fill"
+          ],
+          "edges": [
+            "n",
+            "t"
+          ],
+          "lines": [
+            4,
+            7,
+            10
+          ]
+        },
+        {
+          "title": "Inspect the finished artifact",
+          "text": "The completed sample is a teaching example of the desired output. Its length was checked; model generation and factual evaluation were not automated.",
+          "active": [
+            "brief"
+          ],
+          "edges": [
+            "b"
+          ],
+          "lines": []
+        }
+      ],
+      "sources": [
+        "build"
+      ],
+      "exercise": {
+        "prompt": "Where would a logo used in the brief belong?",
+        "hint": "Is the workflow learning a rule from it or using it in the output?",
+        "solution": "Usually assets. It is output material. Instructions explaining when the logo is appropriate could live in the body or a reference."
+      },
+      "deep_dive": [
+        {
+          "title": "Templates can encode bad assumptions",
+          "text": "A mandatory “owner” field can pressure a workflow to invent an owner. Use an explicit unknown or unanswered question when the input does not establish a value."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "workflow",
+      "level": "Intermediate",
+      "title": "Connect the parts into a working sequence",
+      "why": "Useful resources need an explicit relationship to the task.",
+      "explanation": [
+        "For this sample, a workflow is the sequence of decisions and operations that produces the brief: read notes, consult the rules, fill the template, save the brief, check the budget, and revise if necessary.",
+        "The skill describes that method. The agent carries it out using the tools available in its environment. A helper file does not run merely because it is present in scripts/. The instructions must connect the need, command, and interpretation of the result."
+      ],
+      "example": {
+        "label": "The method in the complete sample",
+        "language": "markdown",
+        "code": "---\nname: note-brief\ndescription: Turn supplied study notes into a concise brief and unanswered questions. Use when the user asks to summarize their notes; do not use for independent topic research.\n---\n\n# Note Brief\n\nRead the notes supplied by the user. If no notes are supplied or accessible, ask for them.\n\nRead `references/brief-rules.md` to distinguish stated facts from missing information. Use the structure in `assets/brief-template.md` to write the brief. Preserve uncertainty; do not invent answers to fill gaps.\n\nFor a saved brief, check its length using Python 3:\n\n```bash\npython3 <skill-dir>/scripts/check_brief.py <brief.md> --max-words 80\n```\n\nThe script counts whitespace-separated tokens, including Markdown markers. If over the limit, shorten the brief without dropping material qualifications, then check again. Return the brief and its unanswered questions. A passing word count does not verify the facts.",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        },
+        "file": "note-brief/SKILL.md"
+      },
+      "diagram": {
+        "label": "A check can feed a revision instead of ending the process",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "read",
+            "label": "Read",
+            "detail": "Notes + rules",
+            "x": 18,
+            "y": 20
+          },
+          {
+            "id": "draft",
+            "label": "Draft",
+            "detail": "Use the template",
+            "x": 50,
+            "y": 20
+          },
+          {
+            "id": "save",
+            "label": "Save",
+            "detail": "brief.md",
+            "x": 82,
+            "y": 20
+          },
+          {
+            "id": "check",
+            "label": "Check",
+            "detail": "Run the helper",
+            "x": 82,
+            "y": 75
+          },
+          {
+            "id": "revise",
+            "label": "Revise",
+            "detail": "If over budget",
+            "x": 50,
+            "y": 75
+          },
+          {
+            "id": "deliver",
+            "label": "Deliver",
+            "detail": "Brief + unknowns",
+            "x": 18,
+            "y": 75
+          }
+        ],
+        "edges": [
+          {
+            "id": "draft",
+            "from": "read",
+            "to": "draft"
+          },
+          {
+            "id": "save",
+            "from": "draft",
+            "to": "save"
+          },
+          {
+            "id": "check",
+            "from": "save",
+            "to": "check"
+          },
+          {
+            "id": "revise",
+            "from": "check",
+            "to": "revise"
+          },
+          {
+            "id": "retry",
+            "from": "revise",
+            "to": "draft"
+          },
+          {
+            "id": "deliver",
+            "from": "check",
+            "to": "deliver"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Ground the draft",
+          "text": "Read the supplied notes and the relevant rules before using the template. The output is constrained by both.",
+          "active": [
+            "read",
+            "draft"
+          ],
+          "edges": [
+            "draft"
+          ],
+          "lines": []
+        },
+        {
+          "title": "Create an inspectable artifact",
+          "text": "Save the brief so the checker and the learner inspect the same text.",
+          "active": [
+            "save"
+          ],
+          "edges": [
+            "save"
+          ],
+          "lines": []
+        },
+        {
+          "title": "Interpret the helper’s result",
+          "text": "A passing count supports delivery. An over-budget result supports revision. Neither result establishes truthfulness.",
+          "active": [
+            "check"
+          ],
+          "edges": [
+            "check"
+          ],
+          "lines": []
+        },
+        {
+          "title": "Close the loop",
+          "text": "Deliver after the relevant checks. If the brief needs revision, preserve important caveats while shortening it and recheck.",
+          "active": [
+            "deliver"
+          ],
+          "edges": [
+            "deliver"
+          ],
+          "lines": []
+        }
+      ],
+      "sources": [
+        "concept",
+        "build"
+      ],
+      "exercise": {
+        "prompt": "The checker is in scripts/, but the skill never mentions it. What should you fix?",
+        "hint": "Separate resource presence from the instruction that makes it useful.",
+        "solution": "Explain when to run it, supply the command, and define what each outcome means. Then observe a real task to verify the agent actually uses it."
+      },
+      "deep_dive": [
+        {
+          "title": "Workflows need not always be rigid",
+          "text": "A fixed sequence is useful when steps depend on each other. Leave room for judgment when the input varies. The skill should preserve necessary dependencies without turning every task into a ceremony."
+        }
+      ],
+      "variants": [
+        {
+          "name": "The brief is over budget",
+          "steps": [
+            {
+              "title": "Observe the failed check",
+              "text": "A real failing budget check is a signal to revise, not permission to drop important uncertainty.",
+              "active": [
+                "check"
+              ],
+              "edges": [],
+              "lines": [],
+              "values": {
+                "check": "43 > 30"
+              }
+            },
+            {
+              "title": "Revise the content",
+              "text": "Shorten phrasing while keeping material caveats. This requires judgment that the counter cannot supply.",
+              "active": [
+                "revise"
+              ],
+              "edges": [
+                "revise"
+              ],
+              "lines": []
+            },
+            {
+              "title": "Run the check again",
+              "text": "The revised draft must be saved and checked again. A previous result does not describe a new file.",
+              "active": [
+                "draft",
+                "save"
+              ],
+              "edges": [
+                "retry",
+                "save"
+              ],
+              "lines": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "level": "Intermediate",
+      "title": "Validate structure, then inspect behavior",
+      "why": "A valid package can still teach the agent the wrong method.",
+      "explanation": [
+        "Structural validation asks whether the package follows the format: required metadata, valid name, and a recognizable entry point. It cannot decide whether a description selects the right tasks or whether the resulting brief preserves meaning.",
+        "Use several kinds of evidence. Check the package, check its referenced resources and helper, test selection on realistic requests, and inspect the produced artifact. In this pilot, the helper has six executed checks. Host selection and model-output quality remain separate work."
+      ],
+      "example": {
+        "label": "Four different questions",
+        "language": "text",
+        "code": "Format: Does SKILL.md parse and identify the skill?\nResources: Do files exist and commands work?\nActivation: Does the intended request select it?\nOutcome: Is the brief grounded and useful?",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        },
+        "file": "verification.json"
+      },
+      "diagram": {
+        "label": "Passing one check does not imply passing the next",
+        "note": "Four independent kinds of evidence. No arrows are shown because success does not automatically propagate from one check to another.",
+        "nodes": [
+          {
+            "id": "format",
+            "label": "Format",
+            "detail": "Metadata + name",
+            "x": 22,
+            "y": 22
+          },
+          {
+            "id": "resources",
+            "label": "Resources",
+            "detail": "Files + execution",
+            "x": 78,
+            "y": 22
+          },
+          {
+            "id": "activation",
+            "label": "Activation",
+            "detail": "Request matching",
+            "x": 22,
+            "y": 76
+          },
+          {
+            "id": "outcome",
+            "label": "Outcome",
+            "detail": "Useful result",
+            "x": 78,
+            "y": 76
+          }
+        ],
+        "edges": []
+      },
+      "steps": [
+        {
+          "title": "Check the package",
+          "text": "The Agent Skills specification offers skills-ref validate for naming and frontmatter checks. Use an installed validator appropriate to the host; the command is not executed in this browser.",
+          "active": [
+            "format"
+          ],
+          "edges": [],
+          "lines": [
+            1
+          ]
+        },
+        {
+          "title": "Check the executable parts",
+          "text": "Run meaningful input and boundary cases for helpers. Our checker was tested with normal, over-budget, exact-boundary, Unicode-whitespace, empty, and missing-file cases.",
+          "active": [
+            "resources"
+          ],
+          "edges": [],
+          "lines": [
+            2
+          ]
+        },
+        {
+          "title": "Check selection",
+          "text": "Try explicit invocation, a normal matching request, and a nearby request that should not use the skill. Capture the behavior rather than assuming the routing worked.",
+          "active": [
+            "activation"
+          ],
+          "edges": [],
+          "lines": [
+            3
+          ]
+        },
+        {
+          "title": "Check the artifact",
+          "text": "Inspect whether the brief is grounded, useful, and honest about unknowns. A successful token count is insufficient evidence for these qualities.",
+          "active": [
+            "outcome"
+          ],
+          "edges": [],
+          "lines": [
+            4
+          ]
+        }
+      ],
+      "sources": [
+        "spec",
+        "eval"
+      ],
+      "exercise": {
+        "prompt": "A brief passes the 80-token limit but invents a delivery date. Which check failed?",
+        "hint": "The script measures length, not whether a claim is supported.",
+        "solution": "Outcome quality failed. Add an incomplete-input case and inspect whether unknowns are preserved. Do not patch the word counter to solve a different problem."
+      },
+      "deep_dive": [
+        {
+          "title": "Why these four layers?",
+          "text": "This is a teaching framework for separating evidence, not an official certification scheme. Each layer answers a distinct question and can fail independently."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "evaluation",
+      "level": "Advanced",
+      "title": "Use a failure to test the mental model",
+      "why": "A skill looks good on easy inputs. Missing information reveals whether its rules matter.",
+      "explanation": [
+        "Give note-brief input that has a real gap: no agreed owner and no delivery date. A good result should preserve those gaps, even if a fluent invented answer would look more complete. This is an outcome test, not a formatting test.",
+        "Then test an adjacent task that should not select the skill. Evaluate the actual steps and artifact. Repeat the cases after a change to the description or procedure. One successful output is useful evidence, but it does not establish reliability over all future inputs."
+      ],
+      "example": {
+        "label": "A small behavioral evaluation set",
+        "language": "text",
+        "code": "Positive: Summarize these supplied notes.\nMissing input: Make a brief. [No notes available]\nUncertain input: No owner or date has been agreed.\nAdjacent task: Research how people take notes.\nChecks: correct scope, grounded claims, useful unknowns.",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        }
+      },
+      "diagram": {
+        "label": "A test case challenges a specific assumption",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "case",
+            "label": "Case",
+            "detail": "Notes with a gap",
+            "x": 20,
+            "y": 23
+          },
+          {
+            "id": "run",
+            "label": "Observed run",
+            "detail": "Capture output",
+            "x": 80,
+            "y": 23
+          },
+          {
+            "id": "criteria",
+            "label": "Criteria",
+            "detail": "Preserve unknowns",
+            "x": 20,
+            "y": 77
+          },
+          {
+            "id": "judge",
+            "label": "Inspect",
+            "detail": "Supported or invented?",
+            "x": 80,
+            "y": 77
+          }
+        ],
+        "edges": [
+          {
+            "id": "run",
+            "from": "case",
+            "to": "run"
+          },
+          {
+            "id": "inspect",
+            "from": "run",
+            "to": "judge"
+          },
+          {
+            "id": "criteria",
+            "from": "criteria",
+            "to": "judge"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Choose a discriminating case",
+          "text": "The missing owner separates a model that preserves uncertainty from one that completes plausible details.",
+          "active": [
+            "case"
+          ],
+          "edges": [],
+          "lines": [
+            3
+          ]
+        },
+        {
+          "title": "Observe an actual run",
+          "text": "Capture the real output and steps. This lesson specifies the test; it does not claim to have run a separate model evaluation of note-brief.",
+          "active": [
+            "run"
+          ],
+          "edges": [
+            "run"
+          ],
+          "lines": []
+        },
+        {
+          "title": "Compare with the criterion",
+          "text": "An invented date fails even if the brief is short and fluent. Repair the relevant guidance and rerun representative cases.",
+          "active": [
+            "criteria",
+            "judge"
+          ],
+          "edges": [
+            "criteria",
+            "inspect"
+          ],
+          "lines": [
+            5
+          ]
+        }
+      ],
+      "sources": [
+        "eval"
+      ],
+      "exercise": {
+        "prompt": "After fixing the missing-owner case, why test a normal note again?",
+        "hint": "A change can help one case while making another worse.",
+        "solution": "The fix may make the skill ask unnecessary questions or omit information that is present. Recheck normal and adjacent cases to see whether the improvement transfers without regressions."
+      },
+      "deep_dive": [
+        {
+          "title": "Keep evidence separate from expectation",
+          "text": "Expected behavior is the test specification. Observed behavior is what actually happened. Store both when evaluating; never turn the expected answer into a claimed result."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "installation",
+      "level": "Advanced",
+      "title": "Install instructions; deploy services only when needed",
+      "why": "Writing a skill and making it discoverable are different steps.",
+      "explanation": [
+        "For Codex, a repository skill lives under .agents/skills, and a personal skill can live under ~/.agents/skills. The host discovers installed skills and can load them for appropriate requests. Sharing the folder lets someone install the same method in their own environment.",
+        "A skill with a local Python helper needs Python where the helper runs. Merely installing the instructions does not deploy a server or provide missing tools. Public plugin distribution is another path, with its own packaging and review process."
+      ],
+      "example": {
+        "label": "A repository-scoped installation",
+        "language": "text",
+        "code": "project/\n  .agents/skills/\n    note-brief/\n      SKILL.md\n      scripts/\n      references/\n      assets/\n\nTry: Use $note-brief to summarize these notes.",
+        "evidence": {
+          "kind": "sourced",
+          "note": "Current Codex installation pattern. Installation commands are not executed by this lesson."
+        }
+      },
+      "diagram": {
+        "label": "The same package can be installed in another environment",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "source",
+            "label": "Source",
+            "detail": "Skill folder",
+            "x": 20,
+            "y": 22
+          },
+          {
+            "id": "project",
+            "label": "Project install",
+            "detail": ".agents/skills/",
+            "x": 80,
+            "y": 22
+          },
+          {
+            "id": "personal",
+            "label": "Personal install",
+            "detail": "~/.agents/skills/",
+            "x": 80,
+            "y": 77
+          },
+          {
+            "id": "host",
+            "label": "Codex",
+            "detail": "Discover + select",
+            "x": 20,
+            "y": 77
+          }
+        ],
+        "edges": [
+          {
+            "id": "project",
+            "from": "source",
+            "to": "project"
+          },
+          {
+            "id": "personal",
+            "from": "source",
+            "to": "personal"
+          },
+          {
+            "id": "host-p",
+            "from": "project",
+            "to": "host"
+          },
+          {
+            "id": "host-u",
+            "from": "personal",
+            "to": "host"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Choose the intended scope",
+          "text": "A project install keeps the method with one repository. A personal install makes it available across your own projects.",
+          "active": [
+            "source"
+          ],
+          "edges": [],
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "title": "Keep the package intact",
+          "text": "Copy or link the complete folder so relative references still resolve. Another user also needs the runtimes or tools the method depends on.",
+          "active": [
+            "project",
+            "personal"
+          ],
+          "edges": [
+            "project",
+            "personal"
+          ],
+          "lines": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "title": "Verify discovery and behavior",
+          "text": "Invoke the skill in the chosen host and inspect a real result. Current Codex docs describe automatic change detection; restart only if an update does not appear.",
+          "active": [
+            "host"
+          ],
+          "edges": [
+            "host-p",
+            "host-u"
+          ],
+          "lines": [
+            9
+          ]
+        }
+      ],
+      "sources": [
+        "codex",
+        "publish"
+      ],
+      "exercise": {
+        "prompt": "Your teammate installs the folder but cannot run the checker. What should you inspect first?",
+        "hint": "The instructions and the execution environment are different layers.",
+        "solution": "Check Python availability, the command, the actual path, and access to the input file. A successful copy is not an execution test."
+      },
+      "deep_dive": [
+        {
+          "title": "Sharing is not the same as public publishing",
+          "text": "You can share source for manual installation. Public directory distribution adds packaging, validation, and review. Do not claim publication merely because a local package works."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "tools",
+      "level": "Advanced",
+      "title": "A skill guides; a tool performs an operation",
+      "why": "Instructions cannot read a remote notebook unless the environment exposes that capability.",
+      "explanation": [
+        "A tool is a callable operation with inputs and a result. A skill explains how operations and judgment should combine to accomplish the task. MCP is a protocol through which servers can expose tools and data to an agent host.",
+        "Our local example needs no MCP server: notes are supplied as files. If a later version reads notes from a remote service, the host needs an appropriate tool, access, and authentication. Writing “fetch my notes” into SKILL.md alone does not create that integration."
+      ],
+      "example": {
+        "label": "A conceptual tool boundary",
+        "language": "text",
+        "code": "Skill: obtain the notes, then preserve uncertainty.\nTool call: read_note({\"note_id\": \"example-123\"})\nTool result: {\"text\": \"No owner has been agreed.\"}\nSkill: use that evidence to prepare the brief.",
+        "evidence": {
+          "kind": "model",
+          "note": "Illustrative tool name and arguments, not an installed integration."
+        }
+      },
+      "diagram": {
+        "label": "Keep guidance and external capability distinct",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "skill",
+            "label": "Skill",
+            "detail": "Method",
+            "x": 20,
+            "y": 20
+          },
+          {
+            "id": "agent",
+            "label": "Agent",
+            "detail": "Chooses operation",
+            "x": 50,
+            "y": 20
+          },
+          {
+            "id": "tool",
+            "label": "Tool",
+            "detail": "Structured call",
+            "x": 82,
+            "y": 20
+          },
+          {
+            "id": "server",
+            "label": "MCP server",
+            "detail": "Validate + execute",
+            "x": 82,
+            "y": 76
+          },
+          {
+            "id": "result",
+            "label": "Result",
+            "detail": "Notes or error",
+            "x": 50,
+            "y": 76
+          },
+          {
+            "id": "brief",
+            "label": "Brief",
+            "detail": "Grounded response",
+            "x": 20,
+            "y": 76
+          }
+        ],
+        "edges": [
+          {
+            "id": "guide",
+            "from": "skill",
+            "to": "agent"
+          },
+          {
+            "id": "call",
+            "from": "agent",
+            "to": "tool"
+          },
+          {
+            "id": "execute",
+            "from": "tool",
+            "to": "server"
+          },
+          {
+            "id": "return",
+            "from": "server",
+            "to": "result"
+          },
+          {
+            "id": "use",
+            "from": "result",
+            "to": "brief"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Identify the missing capability",
+          "text": "The skill supplies the method, but a remote note requires a real accessible operation.",
+          "active": [
+            "skill",
+            "agent"
+          ],
+          "edges": [
+            "guide"
+          ],
+          "lines": [
+            1
+          ]
+        },
+        {
+          "title": "Make a structured call",
+          "text": "An available tool receives arguments. Its server validates and performs the operation; authentication and permissions still matter.",
+          "active": [
+            "tool",
+            "server"
+          ],
+          "edges": [
+            "call",
+            "execute"
+          ],
+          "lines": [
+            2
+          ]
+        },
+        {
+          "title": "Use the result as evidence",
+          "text": "The returned note informs the brief. If the tool fails, the workflow must handle that failure instead of pretending the data was retrieved.",
+          "active": [
+            "result",
+            "brief"
+          ],
+          "edges": [
+            "return",
+            "use"
+          ],
+          "lines": [
+            3,
+            4
+          ]
+        }
+      ],
+      "sources": [
+        "mcp"
+      ],
+      "exercise": {
+        "prompt": "Can you repair an unavailable remote-note tool by adding a longer reference file?",
+        "hint": "What is missing: information about a procedure, or an executable capability?",
+        "solution": "No. You need the capability and required access, or a fallback such as user-supplied notes. More instructions cannot manufacture a tool."
+      },
+      "deep_dive": [
+        {
+          "title": "Choose the simplest sufficient capability",
+          "text": "Use supplied files when they satisfy the task. Add a service integration only when its benefit justifies its authentication, failure handling, and maintenance."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "plugins",
+      "level": "Advanced",
+      "title": "A plugin packages capabilities for installation",
+      "why": "A reusable method and a service integration may need to travel together.",
+      "explanation": [
+        "A plugin is an installable bundle. It can include skills, MCP configuration, or both. The skill still supplies the method; any MCP tools still supply operations. Packaging makes the pieces easier to distribute together.",
+        "Current OpenAI documentation describes a portable root plugin.json layout, with a compatibility format also supported. Packaging details are host-specific and can change. Use the linked current schema when building a real plugin; a folder sketch is not proof of a valid manifest."
+      ],
+      "example": {
+        "label": "A skills-only plugin, then an optional tool layer",
+        "language": "text",
+        "code": "note-brief-kit/\n  plugin.json\n  skills/\n    note-brief/\n      SKILL.md\n      scripts/\n      references/\n      assets/\n  mcp.json   # only if an MCP integration is needed",
+        "evidence": {
+          "kind": "sourced",
+          "note": "Documented package layout, not a built or submitted plugin."
+        }
+      },
+      "diagram": {
+        "label": "Packaging connects pieces without changing their roles",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "manifest",
+            "label": "Manifest",
+            "detail": "Identity + contents",
+            "x": 50,
+            "y": 18
+          },
+          {
+            "id": "skills",
+            "label": "Skills",
+            "detail": "Reusable methods",
+            "x": 22,
+            "y": 52
+          },
+          {
+            "id": "tools",
+            "label": "MCP config",
+            "detail": "Optional tools",
+            "x": 78,
+            "y": 52
+          },
+          {
+            "id": "bundle",
+            "label": "Plugin",
+            "detail": "Installable package",
+            "x": 50,
+            "y": 82
+          }
+        ],
+        "edges": [
+          {
+            "id": "skills",
+            "from": "manifest",
+            "to": "skills"
+          },
+          {
+            "id": "tools",
+            "from": "manifest",
+            "to": "tools"
+          },
+          {
+            "id": "bundle-s",
+            "from": "skills",
+            "to": "bundle"
+          },
+          {
+            "id": "bundle-t",
+            "from": "tools",
+            "to": "bundle"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Describe the package",
+          "text": "The manifest identifies the plugin and declares its contents according to the chosen host’s schema.",
+          "active": [
+            "manifest"
+          ],
+          "edges": [],
+          "lines": [
+            2
+          ]
+        },
+        {
+          "title": "Include only needed capabilities",
+          "text": "A skills-only plugin can package note-brief without a remote server. Add MCP configuration when there is a real integration to expose.",
+          "active": [
+            "skills",
+            "tools"
+          ],
+          "edges": [
+            "skills",
+            "tools"
+          ],
+          "lines": [
+            3,
+            4,
+            9
+          ]
+        },
+        {
+          "title": "Validate the installation path",
+          "text": "Check the bundle in the target host. For public distribution, follow its submission and review process; local success is not publication.",
+          "active": [
+            "bundle"
+          ],
+          "edges": [
+            "bundle-s",
+            "bundle-t"
+          ],
+          "lines": []
+        }
+      ],
+      "sources": [
+        "architecture",
+        "package",
+        "publish"
+      ],
+      "exercise": {
+        "prompt": "Does every useful skill need to become a plugin?",
+        "hint": "What problem would packaging solve for this particular user?",
+        "solution": "No. A standalone skill can be sufficient. A plugin becomes useful when distribution or coordinated capabilities justify the extra package layer."
+      },
+      "deep_dive": [
+        {
+          "title": "Compatibility is not a universal contract",
+          "text": "A host may support a compatibility manifest while preferring a newer format. Distinguish the portable skill content from the host’s package metadata and capabilities."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "hooks",
+      "level": "Advanced",
+      "title": "Hooks react to events in a host",
+      "why": "Some behavior belongs at a lifecycle event rather than inside a selected task method.",
+      "explanation": [
+        "A hook is configured behavior that runs at a supported host event. A skill is guidance selected for a task. Putting a script in a skill does not automatically register a hook, and a hook is not a substitute for explaining the method.",
+        "For example, a host may support a post-tool event where configured code inspects a result. That happens after the tool action. It cannot undo an already completed side effect, and hook coverage is host-specific. Treat event timing as part of the design."
+      ],
+      "example": {
+        "label": "Timing matters more than the label",
+        "language": "text",
+        "code": "1. A tool action completes.\n2. The host emits a supported post-tool event.\n3. A configured, trusted hook examines the result.\n4. The hook may report feedback.\nThe completed action has already happened.",
+        "evidence": {
+          "kind": "sourced",
+          "note": "Conceptual lifecycle sequence based on Codex hook documentation; no hook is installed or executed."
+        }
+      },
+      "diagram": {
+        "label": "An after-action hook cannot be a before-action gate",
+        "note": "Simplified teaching model. The highlighted sequence explains the relationship, not a captured agent runtime.",
+        "nodes": [
+          {
+            "id": "tool",
+            "label": "Tool action",
+            "detail": "Side effect occurs",
+            "x": 18,
+            "y": 23
+          },
+          {
+            "id": "event",
+            "label": "Host event",
+            "detail": "After completion",
+            "x": 50,
+            "y": 23
+          },
+          {
+            "id": "hook",
+            "label": "Hook",
+            "detail": "Configured behavior",
+            "x": 82,
+            "y": 23
+          },
+          {
+            "id": "feedback",
+            "label": "Feedback",
+            "detail": "Respond to result",
+            "x": 82,
+            "y": 77
+          },
+          {
+            "id": "past",
+            "label": "Past action",
+            "detail": "Already happened",
+            "x": 18,
+            "y": 77
+          }
+        ],
+        "edges": [
+          {
+            "id": "event",
+            "from": "tool",
+            "to": "event"
+          },
+          {
+            "id": "hook",
+            "from": "event",
+            "to": "hook"
+          },
+          {
+            "id": "feedback",
+            "from": "hook",
+            "to": "feedback"
+          },
+          {
+            "id": "past",
+            "from": "tool",
+            "to": "past"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Place the event in time",
+          "text": "A post-tool event occurs after the operation. The original action is already in the past.",
+          "active": [
+            "tool",
+            "past"
+          ],
+          "edges": [
+            "past"
+          ],
+          "lines": [
+            1,
+            5
+          ]
+        },
+        {
+          "title": "Run configured behavior",
+          "text": "Only supported, configured, and trusted hooks participate. A script’s location in a skill folder is not enough.",
+          "active": [
+            "event",
+            "hook"
+          ],
+          "edges": [
+            "event",
+            "hook"
+          ],
+          "lines": [
+            2,
+            3
+          ]
+        },
+        {
+          "title": "Interpret the feedback correctly",
+          "text": "Feedback can inform subsequent behavior. It does not reverse the completed operation.",
+          "active": [
+            "feedback"
+          ],
+          "edges": [
+            "feedback"
+          ],
+          "lines": [
+            4,
+            5
+          ]
+        }
+      ],
+      "sources": [
+        "hooks",
+        "package"
+      ],
+      "exercise": {
+        "prompt": "Would a post-tool hook be sufficient to prevent an unwanted external write?",
+        "hint": "At what point has the write already occurred?",
+        "solution": "No. Prevention must happen before the side effect through appropriate controls. After-action feedback can detect or report, but cannot retroactively prevent the write."
+      },
+      "deep_dive": [
+        {
+          "title": "Current distribution boundary",
+          "text": "As of this research snapshot, the packaging documentation limits plugins with lifecycle hooks to manual Codex desktop installation and excludes them from the public directory. Check current documentation before distributing a hook-dependent plugin."
+        }
+      ],
+      "variants": []
+    },
+    {
+      "id": "transfer",
+      "level": "Advanced",
+      "title": "Build, change, and explain a new version",
+      "why": "You understand the system when you can change it without losing the properties that matter.",
+      "explanation": [
+        "Adapt note-brief into meeting-brief. It should summarize decisions, extract explicitly assigned actions, and preserve unknown owners or dates. Start with the output requirements, then change the description, procedure, references, and template only where the new job requires it.",
+        "Now introduce a failure: an over-budget brief contains an invented date. The helper catches length, but not truth. Repair each problem at its own layer and rerun the relevant checks. This is the full picture: instructions, information, output material, computation, runtime capabilities, and distribution each have a distinct role."
+      ],
+      "example": {
+        "label": "Your adaptation brief",
+        "language": "text",
+        "code": "New task: summarize meeting notes.\nOutput: decisions, assigned actions, open questions.\nKeep: unsupported owners and dates unknown.\nChange: trigger, procedure, rules, and template.\nTest: normal, incomplete, over-budget, adjacent task.\nExplain: why each piece exists and what it cannot prove.",
+        "evidence": {
+          "kind": "model",
+          "note": "Original teaching example; no agent execution is claimed."
+        }
+      },
+      "diagram": {
+        "label": "Change the requirements; trace the consequences",
+        "note": "Capstone dependency map. This is a proposed adaptation, not a claimed completed model evaluation.",
+        "nodes": [
+          {
+            "id": "goal",
+            "label": "New goal",
+            "detail": "Meeting brief",
+            "x": 20,
+            "y": 20
+          },
+          {
+            "id": "method",
+            "label": "Method",
+            "detail": "Trigger + procedure",
+            "x": 80,
+            "y": 20
+          },
+          {
+            "id": "resources",
+            "label": "Resources",
+            "detail": "Rules + template",
+            "x": 80,
+            "y": 52
+          },
+          {
+            "id": "checks",
+            "label": "Checks",
+            "detail": "Behavior + helper",
+            "x": 80,
+            "y": 83
+          },
+          {
+            "id": "explain",
+            "label": "Explain",
+            "detail": "Why this design?",
+            "x": 20,
+            "y": 83
+          }
+        ],
+        "edges": [
+          {
+            "id": "method",
+            "from": "goal",
+            "to": "method"
+          },
+          {
+            "id": "resources",
+            "from": "method",
+            "to": "resources"
+          },
+          {
+            "id": "checks",
+            "from": "resources",
+            "to": "checks"
+          },
+          {
+            "id": "explain",
+            "from": "checks",
+            "to": "explain"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Name the new outcome",
+          "text": "Meeting notes call for decisions and assigned actions. That change should drive the design rather than adding directories by habit.",
+          "active": [
+            "goal"
+          ],
+          "edges": [],
+          "lines": [
+            1,
+            2
+          ]
+        },
+        {
+          "title": "Preserve the important constraint",
+          "text": "Unknown owners and dates remain unknown. Make the changed guidance and output structure express that requirement.",
+          "active": [
+            "method",
+            "resources"
+          ],
+          "edges": [
+            "method",
+            "resources"
+          ],
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "title": "Test what could go wrong",
+          "text": "Use cases that expose incorrect selection, invented claims, and length failures. Distinguish observed results from expected ones.",
+          "active": [
+            "checks"
+          ],
+          "edges": [
+            "checks"
+          ],
+          "lines": [
+            5
+          ]
+        },
+        {
+          "title": "Explain the tradeoffs",
+          "text": "You should be able to justify each resource and say what evidence it provides. A complete-looking package is less important than an understandable, tested method.",
+          "active": [
+            "explain"
+          ],
+          "edges": [
+            "explain"
+          ],
+          "lines": [
+            6
+          ]
+        }
+      ],
+      "sources": [],
+      "exercise": {
+        "prompt": "Create the meeting-brief variant and explain one reason to keep it separate from note-brief.",
+        "hint": "Compare task selection, output expectations, and maintenance.",
+        "solution": "Separate them if their jobs and output contracts differ enough that one broad description becomes ambiguous. Combine them if they share a coherent workflow with clear conditional behavior. Test the routing and outcomes either way."
+      },
+      "deep_dive": [
+        {
+          "title": "What comes next",
+          "text": "Build a real plugin only if packaging is now useful. Connect a remote service only if the task needs it. Explore hooks only for a concrete event-driven requirement. Each next step should solve a newly visible problem."
+        }
+      ],
+      "variants": []
+    }
+  ],
+  "resources": [
+    {
+      "label": "Sample skill",
+      "path": "note-brief/SKILL.md"
+    },
+    {
+      "label": "Input notes",
+      "path": "sample-notes.md"
+    },
+    {
+      "label": "Sample brief",
+      "path": "sample-brief.md"
+    },
+    {
+      "label": "Python helper",
+      "path": "note-brief/scripts/check_brief.py"
+    },
+    {
+      "label": "Execution evidence",
+      "path": "verification.json"
+    },
+    {
+      "label": "Lesson source",
+      "path": "lesson.json"
+    }
+  ]
+}

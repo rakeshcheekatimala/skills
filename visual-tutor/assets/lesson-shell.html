@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual Tutor</title>
+<style>
+:root{color-scheme:light;--paper:#f7f6f1;--surface:#fffefa;--ink:#202b28;--muted:#616e66;--line:#d9dfd6;--accent:#136651;--accent-soft:#dceee4;--code:#edf1e9;--warm:#f2e5cc;--warm-ink:#785112;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6}button,select{font:inherit;color:inherit}button,a,select{touch-action:manipulation}button,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:7px 13px}button{cursor:pointer}button:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}button:disabled{opacity:.45;cursor:default}button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #bd7731;outline-offset:3px}a{color:var(--accent);text-underline-offset:3px}h1,h2,h3,p{margin:0}h1{font-size:clamp(25px,3vw,38px);line-height:1.15;letter-spacing:-1px;font-weight:600}h2{font-size:clamp(24px,2.5vw,33px);line-height:1.2;letter-spacing:-.7px;font-weight:600}h3{font-size:16px;font-weight:600}p+p{margin-top:14px}.small{font-size:13px;color:var(--muted)}.eyebrow{font-size:11px;font-weight:650;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent)}.wrap{max-width:1400px;margin:0 auto;padding:0 42px}.brandbar{display:flex;align-items:center;justify-content:space-between;padding-top:24px;padding-bottom:22px;border-bottom:1px solid var(--line);gap:20px}.brand{display:flex;align-items:center;gap:10px;letter-spacing:2px;font-size:12px;font-weight:650}.brand-symbol{height:24px;width:24px;border-radius:50%;border:1px solid var(--accent);position:relative}.brand-symbol:after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--accent)}.header-body{padding:30px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;gap:30px}.header-body p{margin-top:12px;max-width:760px;color:var(--muted)}.edition{text-align:right;white-space:nowrap;font-size:12px;color:var(--muted)}.outline{border:1px solid var(--line);border-radius:12px;margin:0 0 24px;padding:22px;background:var(--surface)}[hidden]{display:none!important}.scope{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}.scope ul{padding-left:18px;margin:8px 0 0}.scope li{font-size:13px;color:var(--muted)}.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.map-column h3{margin-bottom:12px}.map-column button{display:block;width:100%;text-align:left;border:0;border-radius:5px;background:transparent;margin:3px 0;font-size:13px;min-height:36px}.map-column button[aria-current=true]{background:var(--accent-soft);color:var(--accent);font-weight:600}.lessonbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.lessonbar label{font-size:12px;color:var(--muted);margin-right:10px}.lessonbar select{max-width:420px;font-size:13px;background:transparent}.chapter-actions{display:flex;gap:7px;align-items:center}.counter{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);margin-right:9px}.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;padding:34px 0 48px;align-items:start}.prose .eyebrow{margin-bottom:11px}.problem{font-size:18px;line-height:1.55;color:var(--muted);margin:19px 0}.explanation p{font-size:15px}.example{margin-top:26px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}.example-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line)}.example-header span{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}.example-header strong{font-size:13px;font-weight:600}.code{overflow:auto;background:var(--code);margin:0;padding:13px 0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.75;max-height:350px}.code-line{display:flex;min-width:max-content;padding:1px 18px 1px 0;border-left:3px solid transparent}.code-line.active{background:var(--accent-soft);border-left-color:var(--accent)}.line-number{display:inline-block;flex:0 0 37px;text-align:right;margin-right:16px;color:var(--muted);user-select:none;opacity:.8}.code-text{white-space:pre}.evidence{padding:12px 16px;font-size:12px;border-top:1px solid var(--line);color:var(--muted)}.evidence-tag{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:650;color:var(--accent);margin-right:7px}.evidence details{margin-top:8px}.evidence pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.evidence a{display:inline-block;margin-top:8px}.step-card{margin-top:18px;padding:18px 20px;background:var(--accent-soft);border-radius:10px;border-left:3px solid var(--accent)}.step-card .eyebrow{margin:0 0 6px}.step-card h3{margin-bottom:6px}.step-card p{font-size:14px}.details-section{margin-top:24px}details{border-top:1px solid var(--line);padding:13px 0}summary{cursor:pointer;font-weight:550;font-size:14px}details p{font-size:14px;color:var(--muted);padding:12px 0 2px}details details{margin-top:12px;padding-left:12px}.exercise{margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px}.exercise>p{font-size:14px;margin:10px 0 14px}.sources{margin-top:22px}.sources a{font-size:12px;display:block;margin-top:6px}.visual-pane{position:sticky;top:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 10px 35px #1f392208}.visual-heading{padding:21px 23px 15px;display:flex;gap:15px;align-items:flex-start;justify-content:space-between}.visual-heading h3{font-size:16px;line-height:1.35;margin-top:6px}.visual-badge{font-size:10px;white-space:nowrap;color:var(--warm-ink);background:var(--warm);border-radius:20px;padding:4px 8px;margin-top:3px}.diagram{position:relative;min-height:390px;height:390px;margin:0 12px;background-image:radial-gradient(#b8c5b655 .7px,transparent .7px);background-size:16px 16px;border-radius:8px}.diagram svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.node{position:absolute;transform:translate(-50%,-50%);width:27%;min-height:75px;padding:12px 7px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:9px;transition:background .22s,border-color .22s,box-shadow .22s;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center}.node.active{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 3px 10px #1a614914}.node-name{font-size:13px;font-weight:600;line-height:1.3}.node-detail{font-size:12px;color:var(--muted);line-height:1.35;margin-top:5px;overflow-wrap:anywhere}.diagram-note{font-size:12px;color:var(--muted);padding:13px 23px 18px;line-height:1.5}.scenario{padding:15px 23px;border-top:1px solid var(--line);display:flex;gap:12px;align-items:center}.scenario label{font-size:12px;color:var(--muted);white-space:nowrap}.scenario select{font-size:12px;width:100%;min-width:0}.playbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 23px;border-top:1px solid var(--line)}.play-buttons{display:flex;gap:7px}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button.primary:hover:not(:disabled){background:#0c5240;color:#fff}.step-count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.step-progress{display:flex;gap:5px;padding:0 23px 20px}.step-progress span{height:3px;flex:1;background:var(--line);border-radius:2px}.step-progress span.done{background:var(--accent)}.live-text{padding:0 23px 20px;font-size:13px;min-height:45px;color:var(--muted)}.footer{border-top:1px solid var(--line);padding:24px 0 38px}.footer-row{display:flex;justify-content:space-between;align-items:flex-start;gap:30px}.resources{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.resources a{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:var(--surface)}.footer p{max-width:750px;font-size:13px;color:var(--muted)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.noscript{padding:30px}.motion-note{font-size:11px;color:var(--muted);padding:0 23px 13px}
+@media(min-width:1500px){.diagram{height:440px}}
+@media(max-width:1000px){.wrap{padding:0 24px}.main{gap:26px}.lessonbar select{max-width:330px}.diagram{height:390px}.visual-heading,.diagram-note,.scenario,.playbar{padding-left:17px;padding-right:17px}.node{width:29%;padding:9px 5px}.node-name{font-size:12px}.node-detail{font-size:12px}}
+@media(max-width:760px){.wrap{padding:0 18px}.brandbar{padding-top:17px;padding-bottom:17px}.header-body{padding:23px 0}.edition{display:none}.header-body p{font-size:14px}.main{display:flex;flex-direction:column;gap:24px;padding-top:25px}.prose,.visual-pane{width:100%}.visual-pane{position:relative;top:0;order:1}.prose{display:contents}.prose-head{order:0}.example{order:2;margin-top:0;width:100%}.step-card{order:3;margin-top:0;width:100%}.details-section{order:4;width:100%;margin-top:0}.exercise{order:5;width:100%;margin-top:0}.sources{order:6;width:100%;margin-top:0}.lessonbar{flex-wrap:wrap;gap:12px}.lessonbar>div:first-child{width:100%}.lessonbar label{display:block;margin-bottom:5px}.lessonbar select{width:100%;max-width:none}.chapter-actions{width:100%;justify-content:flex-end}.counter{margin-right:auto}.scope,.map-grid{grid-template-columns:1fr;gap:16px}.diagram{height:380px;min-height:380px}.node{min-height:76px}.node-name{font-size:13px}.footer-row{display:block}.playbar{padding:15px}.play-buttons{gap:5px}.playbar button{padding:6px 11px}.step-count{font-size:11px}.problem{font-size:17px}.outline{padding:17px}.code{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<noscript><p class="noscript">This interactive lesson needs JavaScript. The companion lesson.json contains the full text and examples.</p></noscript>
+<div class="wrap">
+<header>
+  <div class="brandbar"><div class="brand"><span class="brand-symbol" aria-hidden="true"></span>VISUAL TUTOR</div><button id="map-toggle" aria-expanded="false" aria-controls="outline">Explore the topic map</button></div>
+  <div class="header-body"><div><h1 id="lesson-title"></h1><p id="subtitle"></p></div><div class="edition">A field guide to understanding<br><span id="date"></span></div></div>
+</header>
+<section id="outline" class="outline" hidden aria-label="Complete topic map"><div class="scope" id="scope"></div><div class="map-grid" id="topic-map"></div></section>
+<nav class="lessonbar" aria-label="Concept navigation"><div><label for="chapter-select">Your learning path</label><select id="chapter-select"></select></div><div class="chapter-actions"><span class="counter" id="chapter-count"></span><button id="previous-chapter" aria-label="Previous concept">← Previous</button><button id="next-chapter" aria-label="Next concept">Next →</button></div></nav>
+<main class="main">
+<article class="prose">
+  <div class="prose-head"><div class="eyebrow" id="level"></div><h2 id="chapter-title" tabindex="-1"></h2><p class="problem" id="why"></p><div class="explanation" id="explanation"></div></div>
+  <section class="example" aria-labelledby="example-label"><div class="example-header"><strong id="example-label"></strong><span id="language"></span></div><pre class="code" id="code"></pre><div class="evidence" id="evidence"></div></section>
+  <section class="step-card" aria-live="polite" aria-atomic="true"><div class="eyebrow" id="step-eyebrow"></div><h3 id="step-title"></h3><p id="step-text"></p></section>
+  <section class="details-section" id="deep-dive" aria-label="Go deeper"></section>
+  <section class="exercise" aria-label="Practice"><div class="eyebrow">Try it yourself · optional</div><p id="exercise-prompt"></p><details><summary>Give me a hint</summary><p id="exercise-hint"></p></details><details><summary>Show the reasoning</summary><p id="exercise-solution"></p></details></section>
+  <section class="sources" aria-label="Sources for this concept"><div class="eyebrow">Read the source</div><div id="sources"></div></section>
+</article>
+<aside class="visual-pane" aria-label="Animated explanation">
+  <div class="visual-heading"><div><div class="eyebrow">See the mechanism</div><h3 id="diagram-label"></h3></div><span class="visual-badge">Teaching model</span></div>
+  <div id="diagram" class="diagram" role="img" aria-label=""></div>
+  <p class="diagram-note" id="diagram-note"></p>
+  <div class="scenario" id="scenario-wrap"><label for="scenario-select">Change the case</label><select id="scenario-select"></select></div>
+  <div class="playbar"><span class="step-count" id="step-count"></span><div class="play-buttons"><button id="back-step" aria-label="Previous step">←</button><button id="play" class="primary">Play</button><button id="next-step" aria-label="Next step">→</button><button id="replay" aria-label="Replay from first step">↺</button></div></div>
+  <div class="step-progress" id="progress" aria-hidden="true"></div><p class="live-text" id="live-text"></p><p class="motion-note" id="motion-note" hidden>Reduced motion is enabled. Each state remains available through the step controls.</p>
+</aside>
+</main>
+<footer class="footer"><div class="footer-row"><div><div class="eyebrow">The finish line</div><p id="outcome"></p></div><span class="small">Observe → change → explain</span></div><div class="resources" id="resources"></div></footer>
+</div>
+<script type="application/json" id="lesson-data">__LESSON_JSON__</script>
+<script>
+(() => {
+'use strict';
+const data = JSON.parse(document.getElementById('lesson-data').textContent);
+const $ = id => document.getElementById(id);
+const el = (tag, text, cls) => { const n = document.createElement(tag); if(text !== undefined) n.textContent = text; if(cls) n.className = cls; return n; };
+const svgEl = (tag, attrs={}) => { const n = document.createElementNS('http://www.w3.org/2000/svg',tag); for(const [key,value] of Object.entries(attrs)) n.setAttribute(key,value); return n; };
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+let chapterIndex=0, stepIndex=0, variantIndex=0, timer=null, nodeElements=new Map(), resizeFrame=null;
+const chapter = () => data.chapters[chapterIndex];
+const mode = () => variantIndex ? chapter().variants[variantIndex-1] : chapter();
+const steps = () => mode().steps;
+const example = () => mode().example || chapter().example;
+function stop(){ if(timer!==null) clearInterval(timer); timer=null; $('play').textContent='Play'; $('play').setAttribute('aria-pressed','false'); }
+function setText(id,text){ $(id).textContent=text; }
+function link(text,url){ const a=el('a',text); a.href=url; if(/^https?:/.test(url)){a.target='_blank';a.rel='noopener noreferrer';} return a; }
+function renderCode(){
+  const item=example(); setText('example-label',item.label);setText('language',item.language);
+  $('code').replaceChildren(...item.code.split('\n').map((line,index)=>{
+    const row=el('span',undefined,'code-line');row.dataset.line=String(index+1);
+    row.append(el('span',String(index+1),'line-number'),el('span',line || ' ','code-text'));return row;
+  }));
+  const ev=item.evidence;const box=$('evidence');box.replaceChildren();
+  box.append(el('span',ev.kind==='executed'?'Verified run':ev.kind==='sourced'?'Documented pattern':'Illustrative example','evidence-tag'),document.createTextNode(ev.note));
+  if(ev.kind==='executed'){
+    const details=el('details');details.append(el('summary','Command and observed result'),el('pre',ev.command+'\n\n'+ev.output));box.append(details);
+  }
+  if(item.file) box.append(el('br'),link('Open the example source ↗',item.file));
+}
+function drawEdges(animate=false){
+  const diagram=$('diagram'), width=diagram.clientWidth, height=diagram.clientHeight;
+  if(!width||!height)return;
+  const old=diagram.querySelector('svg');if(old)old.remove();
+  const svg=svgEl('svg',{viewBox:`0 0 ${width} ${height}`,'aria-hidden':'true'});
+  const defs=svgEl('defs');
+  for(const [name,color] of [['muted','#becbbe'],['active','#136651']]){
+    const marker=svgEl('marker',{id:'arrow-'+name,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'});
+    marker.append(svgEl('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:color}));defs.append(marker);
+  }
+  svg.append(defs);const current=steps()[stepIndex];
+  for(const edge of chapter().diagram.edges || []){
+    const a=nodeElements.get(edge.from),b=nodeElements.get(edge.to);
+    const x1=parseFloat(a.style.left)*width/100,y1=parseFloat(a.style.top)*height/100,x2=parseFloat(b.style.left)*width/100,y2=parseFloat(b.style.top)*height/100;
+    const dx=x2-x1,dy=y2-y1,length=Math.hypot(dx,dy);if(!length)continue;
+    const ux=dx/length,uy=dy/length;
+    const gap=(node)=>Math.min(Math.abs(ux)>0.001?(node.offsetWidth/2+5)/Math.abs(ux):Infinity,Math.abs(uy)>0.001?(node.offsetHeight/2+5)/Math.abs(uy):Infinity);
+    const start=gap(a),end=gap(b),sx=x1+ux*start,sy=y1+uy*start,tx=x2-ux*end,ty=y2-uy*end;
+    const active=(current.edges || []).includes(edge.id);
+    const path=svgEl('path',{d:`M ${sx} ${sy} L ${tx} ${ty}`,stroke:active?'#136651':'#becbbe','stroke-width':active?2:1.3,fill:'none','marker-end':`url(#arrow-${active?'active':'muted'})`});svg.append(path);
+    if(active && animate && !reduced.matches){
+      const dot=svgEl('circle',{cx:tx,cy:ty,r:4,fill:'#136651'});
+      dot.append(svgEl('animate',{attributeName:'cx',from:sx,to:tx,dur:'.7s',fill:'freeze'}),svgEl('animate',{attributeName:'cy',from:sy,to:ty,dur:'.7s',fill:'freeze'}));svg.append(dot);
+    }
+  }
+  diagram.prepend(svg);
+}
+function renderStep(animate=true){
+  const step=steps()[stepIndex];
+  setText('step-eyebrow',`Step ${stepIndex+1} · cause and effect`);setText('step-title',step.title);setText('step-text',step.text);
+  setText('step-count',`${String(stepIndex+1).padStart(2,'0')} / ${String(steps().length).padStart(2,'0')} steps`);
+  setText('live-text',step.title);$('diagram').setAttribute('aria-label',chapter().diagram.label+'. '+step.title+'. '+step.text);
+  $('back-step').disabled=stepIndex===0;$('next-step').disabled=stepIndex===steps().length-1;
+  $('progress').replaceChildren(...steps().map((_,i)=>el('span',undefined,i<=stepIndex?'done':'')));
+  const values=Object.assign({},...steps().slice(0,stepIndex+1).map(item=>item.values||{}));
+  for(const node of chapter().diagram.nodes){const n=nodeElements.get(node.id);n.classList.toggle('active',step.active.includes(node.id));n.querySelector('.node-detail').textContent=values[node.id] || node.detail;}
+  $('code').querySelectorAll('.code-line').forEach(line=>line.classList.toggle('active',(step.lines||[]).includes(Number(line.dataset.line))));
+  const highlighted=$('code').querySelector('.code-line.active');
+  if(highlighted){const row=highlighted.getBoundingClientRect(),box=$('code').getBoundingClientRect();if(row.top<box.top||row.bottom>box.bottom)$('code').scrollTop+=row.top-box.top-20;}
+  drawEdges(animate);
+}
+function selectScenario(index){stop();variantIndex=index;stepIndex=0;renderCode();renderStep(false);}
+function selectChapter(index, focus=false){
+  stop();chapterIndex=Math.max(0,Math.min(index,data.chapters.length-1));stepIndex=0;variantIndex=0;
+  const ch=chapter();$('chapter-select').value=String(chapterIndex);
+  setText('chapter-count',`${chapterIndex+1} of ${data.chapters.length} concepts`);setText('level',ch.level);setText('chapter-title',ch.title);setText('why',ch.why);
+  $('previous-chapter').disabled=chapterIndex===0;$('next-chapter').disabled=chapterIndex===data.chapters.length-1;
+  $('explanation').replaceChildren(...ch.explanation.map(p=>el('p',p)));
+  $('deep-dive').replaceChildren(...(ch.deep_dive||[]).map(item=>{const d=el('details');d.append(el('summary',item.title),el('p',item.text));return d;}));
+  for(const key of ['prompt','hint','solution'])setText('exercise-'+key,ch.exercise[key]);
+  document.querySelectorAll('.exercise details').forEach(d=>d.open=false);
+  $('sources').replaceChildren(...ch.sources.map(id=>{const source=data.sources.find(s=>s.id===id);return link(source.title+' ↗',source.url);}));
+  setText('diagram-label',ch.diagram.label);setText('diagram-note',ch.diagram.note);
+  const diagram=$('diagram');diagram.replaceChildren();nodeElements=new Map();
+  for(const node of ch.diagram.nodes){const n=el('div',undefined,'node');n.dataset.node=node.id;n.style.left=node.x+'%';n.style.top=node.y+'%';n.append(el('span',node.label,'node-name'),el('span',node.detail,'node-detail'));diagram.append(n);nodeElements.set(node.id,n);}
+  const variants=ch.variants||[];$('scenario-wrap').hidden=!variants.length;
+  $('scenario-select').replaceChildren(...['Main example',...variants.map(v=>v.name)].map((name,i)=>{const option=el('option',name);option.value=String(i);return option;}));
+  document.querySelectorAll('[data-map-chapter]').forEach(b=>b.setAttribute('aria-current',String(Number(b.dataset.mapChapter)===chapterIndex)));
+  renderCode();renderStep(false);
+  if(focus){$('chapter-title').focus({preventScroll:true});document.querySelector('.lessonbar').scrollIntoView({block:'start',behavior:reduced.matches?'auto':'smooth'});}
+}
+$('map-toggle').addEventListener('click',()=>{const expanded=$('outline').hidden;$('outline').hidden=!expanded;$('map-toggle').setAttribute('aria-expanded',String(expanded));});
+$('chapter-select').addEventListener('change',e=>selectChapter(Number(e.target.value)));
+$('previous-chapter').addEventListener('click',()=>selectChapter(chapterIndex-1,true));$('next-chapter').addEventListener('click',()=>selectChapter(chapterIndex+1,true));
+$('scenario-select').addEventListener('change',e=>selectScenario(Number(e.target.value)));
+$('back-step').addEventListener('click',()=>{stop();if(stepIndex>0)stepIndex--;renderStep();});
+$('next-step').addEventListener('click',()=>{stop();if(stepIndex<steps().length-1)stepIndex++;renderStep();});
+$('replay').addEventListener('click',()=>{stop();stepIndex=0;renderStep(false);});
+$('play').addEventListener('click',()=>{
+  if(timer!==null){stop();return;}
+  if(stepIndex===steps().length-1){stepIndex=0;renderStep(false);}
+  $('play').textContent='Pause';$('play').setAttribute('aria-pressed','true');
+  timer=setInterval(()=>{if(stepIndex<steps().length-1){stepIndex++;renderStep();}if(stepIndex===steps().length-1)stop();},3000);
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+new ResizeObserver(()=>{if(resizeFrame!==null)cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{drawEdges(false);resizeFrame=null;});}).observe($('diagram'));
+reduced.addEventListener('change',()=>{$('motion-note').hidden=!reduced.matches;drawEdges(false);});
+$('motion-note').hidden=!reduced.matches;
+document.title=data.title+' · Visual Tutor';setText('lesson-title',data.title);setText('subtitle',data.subtitle);setText('outcome',data.outcome);setText('date','Research checked '+data.research_date);
+for(const [key,title] of [['prerequisites','Start here'],['includes','The complete path'],['boundaries','Beyond this lesson']]){const box=el('div');box.append(el('h3',title));const list=el('ul');for(const text of data.scope[key])list.append(el('li',text));box.append(list);$('scope').append(box);}
+for(const level of ['Foundations','Intermediate','Advanced']){
+  const group=el('optgroup');group.label=level;const column=el('div',undefined,'map-column');column.append(el('h3',level));
+  data.chapters.forEach((ch,i)=>{if(ch.level!==level)return;const option=el('option',`${i+1}. ${ch.title}`);option.value=String(i);group.append(option);const button=el('button',`${String(i+1).padStart(2,'0')}  ${ch.title}`);button.dataset.mapChapter=String(i);button.addEventListener('click',()=>{selectChapter(i,true);$('outline').hidden=true;$('map-toggle').setAttribute('aria-expanded','false');});column.append(button);});
+  $('chapter-select').append(group);$('topic-map').append(column);
+}
+for(const resource of data.resources||[]) $('resources').append(link(resource.label+' ↗',resource.path));
+selectChapter(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-23",
+  "scope": "Deterministic helper execution only; no automated host routing or model quality evaluation is claimed.",
+  "checks": [
+    {
+      "case": "supplied brief",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"words\": 43, \"limit\": 80, \"within_limit\": true}",
+      "stderr": ""
+    },
+    {
+      "case": "over budget",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "{\"words\": 43, \"limit\": 30, \"within_limit\": false}",
+      "stderr": ""
+    },
+    {
+      "case": "exact boundary",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"words\": 3, \"limit\": 3, \"within_limit\": true}",
+      "stderr": ""
+    },
+    {
+      "case": "unicode whitespace",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"words\": 3, \"limit\": 3, \"within_limit\": true}",
+      "stderr": ""
+    },
+    {
+      "case": "empty input",
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "stdout": "",
+      "stderr": "Input error: the brief is empty"
+    },
+    {
+      "case": "missing input",
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "stdout": "",
+      "stderr": "Input error: [Errno 2] No such file or directory: '/var/folders/ww/qt1jwbmj6pv_ftd76hwz__x00000gn/T/visual-tutor-example-m3mipr45/missing.txt'"
+    }
+  ]
+}

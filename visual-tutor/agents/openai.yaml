@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Tutor"
+  short_description: "Learn deeply with working examples and animation"
+  default_prompt: "Use $visual-tutor to teach me a topic from first principles with a working example and synchronized animation."
